@@ -1,0 +1,8 @@
+# LICENSE and README files don't need to be mentioned - 
+# setup picks them up automatically
+# include LICENSE
+# include README.md
+
+# All other files/dirs are assummed to be relative to root of project dir
+# (which is the dir containing setup.py file)
+include xf_aes_gcm/VERSION
