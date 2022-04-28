@@ -12,11 +12,11 @@ HERE = pathlib.Path(__file__).parent
 # The text of the README file
 README = (HERE / 'README.md').read_text()
 
-BASE_VERSION = '1.0.0'
+BASE_VERSION = '1.0.1'
 PKG_NAME = 'xf_aes_gcm'
 DESC = ('A general AES-GCM en-/decryption utility with support for additional '
         'data (AEAD) and tweaks to work with the passwords encrypted by '
-        "S&P Global's Xpressfeed applications, which use this algorithm")
+        "S&P Global's Xpressfeed applications, which use this algorithm.")
 GIT_URL='https://github.com/richmilne/xf-aes-gcm/releases/tag/v1.0.0'
 # Replace the default URL given above by one defined in the environment
 # (and one should be defined if this package is built by Jenkins)
