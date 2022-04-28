@@ -77,6 +77,9 @@ $ xf-aes-gcm --tag-len 12 -f ciphertext DEC --no-verify | xxd
 $ xf-aes-gcm --tag-len 16 -f ciphertext DEC --no-verify | xxd
 00000000: 5377 3072 6466 2f73 68                   Sw0rdf/sh
 
+If you need to use a shorter tag length, ensure you truncate the tag
+appended to the end of the ciphertext by the same amount - and vice versa.
+
 Lastly, here's a simple shell function to help you generate keys and nonces
 of the required byte lengths, defaulting to 12 bytes:
 
@@ -101,6 +104,7 @@ import sys
 import pathlib
 
 from . import aesgcm
+from .read_args import create_args, read_stream_or_file
 
 # Values taken directly from the Xpressfeed jar (buildnumber=45,
 # loaderversion=5.10.3), in com/capitaliq/common/ObjectLibrary.class
@@ -176,16 +180,20 @@ def decrypt(key, iv, tag_len, input, aad=None, verify=True):
         msg = ('Could not verify either, or both, of the authentication tag '
               'and the associated data.')
         print(msg, file=sys.stderr)
+        sys.exit(1)
 
 
 def xf_aes_gcm():
 
-    args = _read_args()
+    arg_parser = create_args(KEY_BYTES, IV, GCM_TAG_LENGTH_12, __doc__)
+    args = arg_parser.parse_args()
+
     if 0: print(args)
     key, iv, tag_len = args.key, args.iv, args.tag_len
-    input = read_stream_or_file(args.f)
+    input = read_stream_or_file(args.input)
     if not input:
         print('Input file/stream empty!', file=sys.stderr)
+        sys.exit(1)
     aad = read_stream_or_file(args.aad) if args.aad else None
 
     if args.op == 'ENC':

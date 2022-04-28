@@ -58,12 +58,12 @@ def read_stream_or_file(handle):
     return buffer
 
 
-def _read_args():
+def create_args(default_key, default_iv, default_tag_len, desc):
     """Retrieve and validate command-line arguments."""
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description=__doc__)
+        description=desc)
 
     parser.add_argument("-v", "--version",
                         help="Show version number and exit.",
@@ -71,14 +71,14 @@ def _read_args():
                         version=_VERSION)
 
     parser.add_argument("-k", "--key",
-        default=KEY_BYTES.hex(),
+        default=default_key.hex(),
         type=validate_decode_key,
         help=("Encryption key of 128, 192 or 256 bits (16, 24 or 32 bytes), "
               "hex-encoded. Default is the Xpressfeed key, '%(default)s'.")
     )
 
     parser.add_argument("-i", "--iv",
-        default=IV.hex(),
+        default=default_iv.hex(),
         type=bytes.fromhex,
         help=("Initialisation Vector (IV), or nonce, hex-encoded. "
               "Recommended length 96 bits (12 bytes). "
@@ -86,7 +86,7 @@ def _read_args():
     )
 
     parser.add_argument("-t", "--tag-len",
-        default=GCM_TAG_LENGTH_12,
+        default=default_tag_len,
         type=validate_range_type(4,16),
         help=("Length, in bytes, of the tag appended to the end of the "
               "ciphertext. Default is the Xpressfeed length of %(default)s.")
@@ -101,6 +101,7 @@ def _read_args():
     )
 
     parser.add_argument("-f",
+        dest='input',
         nargs='?',
         type=argparse.FileType(mode='rb'),
         # To read binary data from stdin you need to use its 'buffer' attribute.
@@ -119,5 +120,4 @@ def _read_args():
               "upon decryption.")
     )
 
-    args = parser.parse_args()
-    return args
+    return parser
