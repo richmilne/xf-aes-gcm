@@ -12,16 +12,17 @@ HERE = pathlib.Path(__file__).parent
 # The text of the README file
 README = (HERE / 'README.md').read_text()
 
-BASE_VERSION = '0.0.1'
+BASE_VERSION = '1.0.0'
 PKG_NAME = 'xf_aes_gcm'
 DESC = ('A general AES-GCM en-/decryption utility with support for additional '
         'data (AEAD) and tweaks to work with the passwords encrypted by '
         "S&P Global's Xpressfeed applications, which use this algorithm")
-GIT_URL='https://github.com/richmilne/xf-aes-gcm/releases'
+GIT_URL='https://github.com/richmilne/xf-aes-gcm/releases/tag/v1.0.0'
 # Replace the default URL given above by one defined in the environment
 # (and one should be defined if this package is built by Jenkins)
 GIT_URL = os.getenv('GIT_URL', GIT_URL)
 
+_PKG_NAME=PKG_NAME.replace('_', '-').replace(' ', '-').lower()
 
 def create_version_struct():
     now = datetime.datetime.now()
@@ -29,7 +30,7 @@ def create_version_struct():
     version = '.'.join(version)
     ver = {
         'build': {
-            'name': PKG_NAME,
+            'name': _PKG_NAME,
             'time': now.isoformat(),
             'version': version,
             # 'description': DESC,
@@ -57,7 +58,6 @@ def create_version_struct():
         })
     return version, ver
 
-__PKG_NAME=PKG_NAME.replace('_', '-').replace(' ', '-').lower(),
 __VERSION__, ver_struct = create_version_struct()
 with open(HERE / PKG_NAME / 'VERSION', 'w') as handle:
     handle.write(json.dumps(ver_struct, indent=2))
@@ -65,12 +65,13 @@ with open(HERE / PKG_NAME / 'VERSION', 'w') as handle:
 setup(
     # If you change name, also need to change it in package init, as it is
     # used to retrieve version
-    name=__PKG_NAME,
+    name=_PKG_NAME,
     version=__VERSION__,
     url=GIT_URL,
     description=DESC,
     long_description=README,
-    # long_description_content_type='text/markdown',
+    # Needed by PyPI, which expects reStructuredText by default.
+    long_description_content_type='text/markdown',
     author='Richard Milne',
     author_email='richmilne@hotmail.com',
     license='GPLv3',
@@ -78,7 +79,7 @@ setup(
     include_package_data=True,   # Included files given in MANIFEST.in
     entry_points={
         'console_scripts': [
-            '%(__PKG_NAME)s=%(PKG_NAME)s:%(PKG_NAME)s' % locals()
+            '%(_PKG_NAME)s=%(PKG_NAME)s:%(PKG_NAME)s' % locals()
         ]
     },
     classifiers=[
@@ -89,12 +90,6 @@ setup(
         'Programming Language :: Python :: 3',
     ],
     install_requires = [
-        # Required so we can test installation of dependent packages
-        'empty-package',
-        # Needed so we can access package version number. See
-        #   https://packaging.python.org/guides/single-sourcing-package-version/
-        # Included with 3.8 and above, so we'll still keep the empty package
-        # for those versions, to test dependency downloads
-        'importlib-metadata >= 1.0 ; python_version < "3.8"',
+        'cryptography',
     ],
 )
